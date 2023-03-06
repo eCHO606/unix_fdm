@@ -1,0 +1,33 @@
+ #!/bin/bashoption=null
+#check if recyclebin exists, if not create a newif [ ! -d $HOME/recyclebin ]
+then        mkdir $HOME/recyclebin
+fi# check if there is an user inputif [ $# -eq 0 ]
+then        echo "recycle: missing operand"        exit 1# main part when checking out 2 conditions "recyclebin" "missing operand"else        for parameter in $@        do                # check if is the i, v, vi, iv                #shift makes the index $1 keep stay the index at flags                if [[ $1 == "-i" ]];then
+                        option="i"                        shift
+                elif [[ $1 == "-v" ]];then
+                        option="v"                        shift
+                elif [[ $1 == "-r" ]];then
+                        option="r"                        shift
+                elif [[ $1 == "-vi" ]];then
+                        option="vi"                        shift
+                elif [[ $1 == "-iv" ]];then
+                        option="iv"                        shift
+                fi        done        for parameter in $@ #for multiple files        do                # check if there is an user input could be found                if [ ! -e $parameter ];then
+                        echo "recycle: cannot remove '$parameter': No such file or directory"                        exit 1                # check if it is directory                elif [ -d $parameter ];then
+                        # no need to have the dir error message here                        if [[ $option == "r" ]];then
+                                $0 $1"/"*    # more like 'bash recycle‘ loop into the sub-dir                                rm -r $1                                echo "$1 is removed"                                exit 0                        else                                echo "recycle: cannot remove '$parameter': Is a directory"                                exit 1                        fi                # check if it is script recycle                elif echo $parameter |grep -q "recycle";then
+                        echo "Attempting to delete recycle – operation aborted"                        exit 1                #if all conditions are pass then go to acreat the filename in recyclebin                else                        inode=$(ls -i $parameter | cut -d " " -f1)                        filename=$(basename $parameter)                        file_newname=$filename'_'$inode                        pathname=$(readlink -f $parameter)                # follow the i, v, iv, vi flag, set the option                        if [[ $option == "i" ]];then
+                                read -p "Do you want to remove regular file $parameter:" choice
+                                case $choice in                                y|Y) ;;
+                                n|*)     exit 0;;
+                                esac                        fi                        if [[ $option == "v" ]];then
+                                echo "$parameter is deleting"                        fi                        if [[ $option == "vi" || $option == "iv" ]];then
+                                read -p "Do you want to remove regular file $parameter:" choice
+                                case $choice in                                y|Y) ;;
+                                n|*)     exit 0;;
+                                esac                                echo "$parameter is deleting"                        fi                        #move files to the bin                        mv $parameter $file_newname                        mv $file_newname $HOME/recyclebin
+                        echo $file_newname':'$pathname >> $HOME/.restore.info
+                fi        donefi~                                                                                                                                                                                                                                                                                                                                                                    
+~                                                                                                                                                                                                                                                                                                                                                                    
+~                                                                                                                                                                                                                                                                                                                                                                    
+~  
