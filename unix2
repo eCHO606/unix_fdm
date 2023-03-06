@@ -1,0 +1,12 @@
+#!/bin/bash#check if there is a file name provided/existif [ $# -eq 0 ]
+then        echo "No filename provided"        exit 1elif [ ! -e $HOME/recyclebin/$1 ]
+then        echo "File does not exist"        exit 1fi#get the pathefilepath_dir=$(grep $1 $HOME/.restore.info | cut -d ":" -f2)filepath=$(readlink -f $filepath_dir)#check if there already have the file with the same nameif [ -e $filepath_dir ]
+then        read -p "Do you want to overwrite? y/n: " answer
+        case $answer in                y|Y|y*)#y, Y, or any word beginning with y or Y to this prompt                        mv $HOME/recyclebin/$1 $filepath                        grep -v $1 $HOME/.restore.info > $HOME/.restored.info
+                        mv $HOME/.restored.info $HOME/.restore.info
+                        echo "done"                        exit 0;;
+                n|*)
+                        echo "done"                        exit 0;;
+        esacelse        mv $HOME/recyclebin/$1 $filepath        grep -v $1 $HOME/.restore.info > $HOME/.restored.info
+        mv $HOME/.restored.info $HOME/.restore.info
+        echo "done"fi~              
